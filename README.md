@@ -12,7 +12,7 @@ Leveraging advanced AI models, the add-on provides high-quality, context-aware t
 #### **Intuitive Layout**
 This dedicated sidebar allows users to set a customized prompt without leaving their document.
 
-
+![SideBar](https://raw.githubusercontent.com/PhuocPhat1005/AI_Powered_Calculation_Plugin_for_Excel_Processing_Applications/refs/heads/main/images/layout.gif?token=GHSAT0AAAAAADCKCPU6ZRCLSVYP5CEHKT6Y2ATSJ2Q)
 
 #### **Main Features**
 In this AI-Powered Calculation Sidebar, there are a lot of interesting features shown below:
@@ -64,8 +64,6 @@ git clone https://github.com/PhuocPhat1005/AI_Powered_Calculation_Plugin_for_Exc
 * Visit [Google Apps Script](https://script.google.com/home) and create a new standalone project.
 * Create and copy all files in source, including `Code.gs` and `Sidebar.html`into the project.
 
-The detailed process is as follows:
-
 **Step 3:** Configure OAuth Scopes & Manifest
 
 Open `appsscript.json` on Google Apps Script and add required OAuth Scopes and URL Fetch Whitelist:
@@ -108,8 +106,6 @@ Open `appsscript.json` on Google Apps Script and add required OAuth Scopes and U
 * Click the "Add script property" button to add a new property:
   * **Key:** `GEMINI_API_KEY`
   * **Value:** `your_api_keys`
-
-The detailed process is as follows:
 
 ### 3.2. Testing
 
