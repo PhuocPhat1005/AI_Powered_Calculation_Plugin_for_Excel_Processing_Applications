@@ -1,0 +1,29 @@
+{
+  "timeZone": "Asia/Ho_Chi_Minh",
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets.currentonly",
+    "https://www.googleapis.com/auth/script.container.ui",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/script.locale",
+    "https://www.googleapis.com/auth/spreadsheets"
+  ],
+  "urlFetchWhitelist": [
+    "https://generativelanguage.googleapis.com/"
+  ],
+  "addOns": {
+    "common": {
+      "name": "Lê Phước Phát - 22127322",
+      "logoUrl": "https://img.icons8.com/color/48/000000/artificial-intelligence.png",
+      "useLocaleFromApp": true
+    },
+    "sheets": {
+      "homepageTrigger": {
+        "runFunction": "showSidebar",
+        "enabled": true
+      }
+    }
+  }
+}

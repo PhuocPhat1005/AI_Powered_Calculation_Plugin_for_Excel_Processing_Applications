@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"> <!-- Đặt bộ mã ký tự UTF-8 -->
+  <title>Prompt</title> <!-- Tiêu đề trang -->
+  <style>
+    /* Nhúng font Roboto từ Google Fonts*/
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+    /* Khai báo biến CSS cho chủ đề chung */
+    :root {
+      /* Font chính: sử dụng Roboto làm font-family cho toàn ứng dụng */
+      --font: 'Roboto', sans-serif;
+      /* Kích thước font cơ bản: mọi phần tử văn bản mặc định sử dụng 14px */
+      --fs: 14px;
+      /* Đơn vị khoảng cách: sử dụng 16px để điều chỉnh padding, margin, gaps */
+      --sp: 6px;
+      /* Bán kính bo góc: 8px cho border-radius của card, button, input */
+      --rad: 8px;
+      /* Màu nền trang chung: màu xám trắng nhẹ */
+      --col-bg: #F5F7FA;
+      /* Màu nền thẻ/card: màu ngọc lam nhạt cho các khối nội dung */
+      --col-card: #C4FAF8;
+      /* Màu viền các phần tử: màu xám nhạt cho border */
+      --col-border: #E3E8EE;
+      /* Màu chữ chính: màu đen đậm cho văn bản chính */
+      --col-text: #202124;
+      /* Màu chữ phụ: màu xám đậm nhẹ cho chú thích, nhãn phụ */
+      --col-text-sec: #5F6C7B;
+      /* Màu nền header: màu xanh đen đậm cho thanh tiêu đề */
+      --col-app: #19232F;
+      /* Màu chủ đạo: màu xanh lá đậm để highlight/active, button */
+      --col-primary: #1D9D74;
+      /* Màu khi hover: màu xanh lá tối hơn khi người dùng hover */
+      --col-primary-hover: #187A60;
+      /* Biến để điều chỉnh kích thước chữ trong infoContainer*/
+      --fs-info: 12px;
+      /* khoảng cách giữa hai dòng * /
+      --info-gap: 2px;
+      /* độ cao dòng */
+      --lh-info: 1.4;
+      --slider-color: var(--col-primary);
+      --slider-hover-color: var(--col-primary-hover);
+    }
+
+    /* Đặt box-sizing và reset margin/padding */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);           /* Áp dụng font Roboto */
+      font-size: var(--fs);               /* Kích thước font */
+      background: var(--col-bg);          /* Nền trang */
+      color: var(--col-text);             /* Màu chữ */
+      width: 100%;                        /* Chiều rộng toàn bộ */
+      height: 100vh;                      /* Chiều cao viewport */
+      display: flex;                      /* Flex container */
+      flex-direction: column;             /* Sắp xếp theo cột */
+      overflow: hidden;                   /* Ẩn overflow */
+    }
+
+    /* Cấu hình header */
+    header {
+      display: flex;                      /* Flex container */
+      align-items: center;                /* Căn giữa theo chiều dọc */
+      justify-content: space-between;     /* Khoảng cách giữa */
+      padding: 0 var(--sp);               /* Padding ngang */
+      height: 56px;                       /* Chiều cao cố định */
+      background: var(--col-app);         /* Nền header */
+      color: #fff;                        /* Chữ trắng */
+      position: relative;                 /* Để dropdown định vị */
+      z-index: 10;                        /* Đứng trên */
+    }
+
+    .back {
+      font-size: 18px;
+      cursor: pointer;
+      margin-right: calc(var(--sp) * 1.5);
+    } /* Nút quay lại */
+    .title {
+      font-weight: bold;
+      font-size: 16px;
+      margin-right: auto;   /* đẩy city selector sang phải */
+    }
+
+    .dropdown-trigger {
+      display: flex; align-items: center; gap: 4px;
+      padding: 4px 12px; border: 2px solid var(--col-primary);
+      border-radius: var(--rad); background: rgba(29, 157, 116, 0.1);
+      cursor: pointer; font-size: 12px; user-select: none;
+    }
+
+    .dropdown-trigger:after {
+      content: '⏷';
+      font-size: 12px;
+    }
+
+    /* Dropdown menu */
+    .dropdown-menu {
+      position: absolute;
+      top: 56px;
+      right: var(--sp);
+      width: 100%;
+      max-width: 300px;
+      max-height: 300px;
+      overflow-y: auto;
+      background: var(--col-bg);
+      border: 1px solid var(--col-border);
+      border-radius: var(--rad);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      display: none;
+      z-index: 20;
+      color: var(--col-text);
+    }
+    .dropdown-menu.show { display: block; } /* Hiện menu */
+    .optgroup-label { /* Nhóm nhãn */
+      padding: 8px var(--sp) 4px; font-size: 12px;
+      font-weight: 900; /* In đậm label của nhóm models */
+      color: var(--col-text-sec);
+    }
+    .option-item { /* Mục chọn */
+      padding: 8px var(--sp);
+      cursor: pointer;
+      transition: background 0.2s ease;
+      color: var(--col-text);
+    }
+    .option-item:hover, /* Hover và chọn */
+    .option-item.selected { background: var(--col-primary); color: #fff; }
+
+    details { margin-bottom:var(--sp); }
+    details summary { display:block; margin-bottom:var(--sp); font-size:13px; font-weight:bold; cursor:pointer; }
+    details summary::-webkit-details-marker { display:none; }
+    details[open] summary:after { content:'⏷'; float:right; }
+    details:not([open]) summary:after { content:'⏵'; float:right; }
+    details .form-group { margin-bottom:var(--sp); }
+
+    /* Content */
+    .content {
+      flex: 1;
+      padding: var(--sp) 8px;
+      overflow-y: auto; /* Cuốn nội dung */
+    }
+    .section { /* Khối nội dung */
+      background: var(--col-card);
+      border: 1px solid var(--col-border);
+      border-radius: var(--rad);
+      padding: var(--sp);
+      margin-bottom: var(--sp);
+    }
+    .section.alt { background: var(--col-card); }
+    .section h2 {
+      color: red;
+      margin-bottom: calc(var(--sp) * 1.5);
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-header h2 {
+      color: red;
+      margin-bottom: calc(var(--sp) * 1.5);
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    /* Form controls */
+    .form-group { margin-bottom: var(--sp); }
+    .form-group label { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 500; }
+
+    .form-group.inline {
+      margin: 0;
+    }
+    .form-group.inline input {
+      width: 80px;
+    }
+
+    .form-group label.visually-hidden {
+      position: absolute;
+      clip: rect(0 0 0 0);
+      width: 1px; height: 1px;
+      overflow: hidden;
+    }
+
+    a.toggle-adv {
+      display: block;
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
+      font-weight : bold;
+      color: var(--col-primary);
+      cursor: pointer;
+      text-decoration: none;
+      background: var(--col-border);
+      padding: calc(var(--sp) * 1.5) 0;
+      border-radius: var(--rad);
+      transition: background .2s;
+      margin: var(--sp) 0;
+    }
+
+    a.toggle-adv:hover {
+      background: var(--col-primary-hover); /* nền đậm hơn khi hover */
+      color: #fff;
+      text-decoration:underline;
+    }
+
+    #advSettings { display:none; }
+
+    /* Global instructions dropdown & textarea */
+    #globalInsCategory,
+    #globalInsContent {
+      width: 100%; padding: 8px;
+      font-size: var(--fs);
+      color: var(--col-text);
+      background: #fff;
+      border: 2px solid var(--col-primary);
+      border-radius: var(--rad);
+      outline: none;
+      transition: border-color .2s;
+      box-sizing: border-box;
+    }
+
+    #globalInsContent {
+      min-height: 5em;
+      overflow: hidden;   /* ẩn scrollbar bên trong */
+      resize: none;       /* tạm ẩn tay cầm resize nếu bạn muốn */
+    }
+
+    #globalInsCategory {
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231D9D74'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      cursor: pointer;
+    }
+
+    #globalInsCategory:focus,
+    #globalInsContent:focus { border-color: var(--col-primary-hover); }
+    #globalInsContent { resize: vertical; }
+
+    #modelSelect, #outputColumn, #inputColumns {
+      -webkit-appearance: none;
+      appearance: none;
+      /* Dùng đúng SVG mũi tên xanh lá */
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width='10'%20height='6'%20viewBox='0%200%2010%206'%20xmlns='http://www.w3.org/2000/svg'%3E%3Cpath%20d='M0%200l5%206%205-6z'%20fill='%231D9D74'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      /* Đệm phải đủ chỗ cho mũi tên */
+      padding-right: 30px;
+      border: 2px solid var(--col-primary);
+      border-radius: var(--rad);
+      background-color: #fff;
+    }
+
+    #modelSelect:focus, #outputColumn:focus, #inputColumns:focus {
+      border-color: var(--col-primary-hover);
+      outline: none;
+    }
+
+    #outputColumn:invalid {
+      color: #888;                   /* màu xám nhạt */
+      font-style: italic;            /* in nghiêng */
+    }
+
+    #outputColumn option[value=""] {
+      font-style: italic;   /* in nghiêng */
+      color: #888;          /* màu xám nhạt */
+    }
+
+    #inputColumns:invalid {
+      color: var(--col-text-sec);
+      font-style: italic;
+    }
+
+    #inputColumns option[value=""] {
+      font-style: italic;
+      color: #888;
+    }
+
+    input[type="number"], select, textarea {
+      width: 100%; padding: 6px;
+      font-size: var(--fs);
+      border: 1px solid var(--col-border);
+      border-radius: var(--rad);
+      outline: none;
+      transition: border-color .2s;
+      background: #fff;
+      color: var(--col-text);
+    }
+
+    #promptEditor {
+      width: 100%;                              /* Full width */
+      min-height: 100px;                        /* Chiều cao tối thiểu */
+      padding: 8px;                             /* Đệm giống textarea */
+      border: 2px solid var(--col-primary);
+      border-radius: var(--rad);
+      background: #fff;
+      outline: none;
+      overflow: hidden;
+      resize: none;
+    }
+
+    #promptEditor:empty:before {
+      content: attr(data-placeholder);
+      color: var(--col-text-sec);
+      font-style: italic;
+      pointer-events: none;
+    }
+
+    #customIns::placeholder {
+      color: var(--col-text-sec);
+      font-style: italic;
+    }
+
+    #customIns {
+      min-height: 2;
+      overflow: hidden;   /* ẩn scrollbar bên trong */
+      resize: none;       /* tạm ẩn tay cầm resize nếu bạn muốn */
+    }
+
+    .variable {
+      font-weight: bold;
+      color: #1721a6;
+    }
+
+    .form-group.header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .form-group.header-row label {
+      margin: 0;
+    }
+
+    #headerRow {
+      width: 60px;
+      /* Phong cách giống globalInsCategory */
+      -webkit-appearance: none;
+      appearance: none;
+      padding: 6px;
+      border: 2px solid var(--col-primary);
+      border-radius: var(--rad);
+      background-color: #fff;
+      text-align: center;
+      line-height: calc(1em + 12px);
+      font-weight: bold;
+    }
+
+    #headerRow:focus {
+      border-color: var(--col-primary-hover);
+      outline: none;
+    }
+
+    #infoContainer {
+      display: flex;
+      flex-direction: column;
+      gap: var(--info-gap);
+      margin-top: var(--sp);
+      font-size: var(--fs-info);
+      line-height: var(--lh-info);
+    }
+
+    #infoContainer strong { color: blue; font-weight:bold; text-decoration:none; }
+    #infoContainer .info-value { color: blue; cursor:pointer; text-decoration:none; }
+    #infoContainer .info-value:hover { text-decoration:underline; }
+
+    input[type="number"] { width: 60px; } /* Độ rộng input số */
+    input:focus, select:focus, textarea:focus { border-color: var(--col-primary); } /* Focus */
+    textarea { /* Nhiều dòng */
+      border: 2px solid var(--col-primary);
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    /* Track */
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 7px;
+      background: transparent;
+      margin: 8px 0;
+      accent-color: transparent;
+    }
+    input[type="range"]::-webkit-slider-runnable-track,
+    input[type="range"]::-moz-range-track {
+      height: 8px;
+      background: var(--col-border);
+      border-radius: var(--rad);  /* Bo tròn track sử dụng biến */
+    }
+
+    input[type="range"]::-ms-track {
+      height: 8px;
+      background: transparent;
+      border-color: transparent;
+      color: transparent;
+    }
+
+    input[type="range"]::-ms-fill-lower,
+    input[type="range"]::-ms-fill-upper {
+      background: var(--col-border);
+      border-radius: var(--rad);  /* Bo tròn track cho IE/Edge */
+    }
+
+    /* Thumb: chỗ này dành cho thumb của slider */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;                          /* nền trắng */
+      border: 2px solid var(--col-primary);     /* viền xanh lá đậm */
+      position: relative;
+      top: 5%;
+      transform: translateY(-5%);
+      cursor: pointer;
+      transition: transform .1s, border-color .3s;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--col-primary);
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      transition: transform .1s, border-color .3s;
+    }
+
+    input[type="range"]::-ms-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--col-primary);
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      transition: transform .1s, border-color .3s;
+    }
+
+    /* Hover effect: viền chuyển màu và phóng to */
+    input[type="range"]:hover::-webkit-slider-thumb,
+    input[type="range"]:hover::-moz-range-thumb,
+    input[type="range"]:hover::-ms-thumb {
+      border-color: var(--col-primary-hover);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    /* Toggle */
+    .toggle-group { display: flex; align-items: center; gap: var(--sp); margin: var(--sp) 0; }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 26px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0;
+      right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 26px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    .slider-group { display:flex; align-items:center; gap:var(--sp); }
+    .slider-group span { width:3em; text-align:right; font-size:var(--fs); color: #187A60; font-weight: bold;}
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch input:checked + .slider { background: var(--col-primary); }
+    .switch input:checked + .slider:before { transform: translateX(18px); }
+
+    .switch-label {
+      font-weight: bold;
+      font-size: 14px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    input:checked + .slider {
+      background-color: var(--col-primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    /* Tabs */
+    .tabs { display: flex; margin-bottom: var(--sp); }
+    .tab { flex: 1; text-align: center; padding: 6px 0; cursor: pointer; background: var(--col-bg); font-size: 13px; }
+    .tab.active { background: var(--col-primary); color: #fff; border-bottom: none; }
+    .tab:not(.active) { border: 1px solid var(--col-border); border-bottom: none; }
+    .tab:last-child:not(.active) { border-right: 1px solid var(--col-border); }
+    .tab-content > div { display: none; padding: 4px 0; }
+    .tab-content > .active { display: block; }
+
+    /* Run button & status */
+    #runBtn { width: 100%; padding: 10px 0; background: var(--col-primary); color: #fff; font-size: 14px; border: none; border-radius: var(--rad); cursor: pointer; margin-bottom: var(--sp); }
+    #runBtn:hover { background: var(--col-primary-hover); }
+    #status { text-align: center; margin-bottom: var(--sp); color: var(--col-text-sec); font-size: 13px; }
+    .divider {
+      border-top: 2px solid var(--col-border);
+      margin: var(--sp) calc(var(--sp) * -1);
+    }
+
+    #resetParams {
+      display: inline-block;               /* để border-bottom nằm ngay dưới text */
+      color: var(--col-primary);           /* màu chủ đạo */
+      font-size: 10px;                /* giữ cùng kích thước chữ chung */
+      font-weight: bold;                    /* hơi đậm một chút */
+      text-decoration: none;               /* bỏ gạch chân mặc định */
+      border-bottom: 2px solid var(--col-primary); /* gạch chân dày màu primary */
+      margin: var(--sp) 0;                 /* giữ khoảng trên/dưới */
+    }
+
+    #resetParams:hover {
+      color: var(--col-primary-hover);
+      border-bottom-color: var(--col-primary-hover);
+    }
+
+    .tip {
+      font-style: italic;
+      font-size: 0.9em;
+      color: var(--col-text-sec);
+      margin-top: var(--sp) auto 0;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    details#spreadsheetSettingsDetail { margin-top: var(--sp); }
+    details#spreadsheetSettingsDetail summary { list-style: none; cursor: pointer; font-size: 13px; display: flex; align-items: center; padding: var(--sp) 0; }
+    details#spreadsheetSettingsDetail summary:hover { text-decoration: underline; }
+    details#spreadsheetSettingsDetail summary::marker { display: none; }
+    details#spreadsheetSettingsDetail summary::after { content: '▼'; margin-left: auto; }
+    details#spreadsheetSettingsDetail[open] summary::after { content: '▲'; }
+    details#spreadsheetSettingsDetail > div { padding-top: var(--sp); }
+
+    details#customInstructions { margin-top: var(--sp); }
+    details#customInstructions summary { list-style: none; cursor: pointer; font-size: 13px; display: flex; align-items: center; padding: var(--sp) 0; }
+    details#customInstructions summary:hover { text-decoration: underline; }
+    details#customInstructions summary::marker { display: none; }
+    details#customInstructions summary::after { content: '▼'; margin-left: auto; }
+    details#customInstructions[open] summary::after { content: '▲'; }
+    details#customInstructions > div { padding-top: var(--sp); }
+
+  </style>
+</head>
+<body onload="init()">
+  <header>
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">Prompt</div>
+    <div class="dropdown-trigger" id="modelTrigger">Select model</div>
+    <div class="dropdown-menu" id="modelMenu"></div>
+  </header>
+
+  <div class="content">
+    <!-- Basic Settings -->
+    <div class="section">
+      <h2>Basic Settings</h2>
+      <div class="form-group header-row">
+        <label for="headerRow">Header row</label>
+        <input type="number" id="headerRow" value="1" min="1">
+      </div>
+    </div>
+
+    <!-- Input Prompt -->
+    <div class="section alt">
+      <h2>Input Prompt</h2>
+
+      <div class="form-group">
+        <label for="inputColumns">Insert variables into input prompt</label>
+        <select id="inputColumns" required>
+          <option value="" disabled selected>Choose variable</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="promptEditor">Prompt to run for each row</label>
+        <div id="promptEditor"
+          contenteditable="true"
+          data-placeholder="Type your prompt here, for example: Write an SEO optimized description for this product: {{product}}
+          Include these attributes: size: {{size}}, color: {{color}}"
+          oninput="highlightVariables(this)">
+        </div>
+      </div>
+    </div>
+
+    <div class = "section">
+      <h2>Output Prompt</h2>
+      <div class="form-group">
+        <label for="outputColumn" id="outputLabel">Put results in column</label>
+        <select id="outputColumn" required onchange="updateRunLabel()"></select>
+      </div>
+
+      <div class="toggle-group">
+        <label class="switch">
+          <input type="checkbox" id="variants">
+          <span class="slider"></span>
+        </label>
+        <label for="variants"><strong style="color: #1D9D74;">Get 2 variants per row</strong></label>
+      </div>
+    </div>
+
+    <!-- Advanced -->
+    <div class="section">
+
+      <h2>Advanced Settings</h2>
+
+      <details id="customInstructions">
+        <summary>Custom Instructions</summary>
+        <textarea id="customIns" placeholder="Provide custom instructions"></textarea>
+      </details>
+
+      <details id="spreadsheetSettingsDetail">
+
+        <summary>Spreadsheet Settings</summary>
+
+        <div class="section" style="background:#fff; border:2px solid var(--col-border); border-radius:var(--rad); padding:var(--sp); margin-top:var(--sp);">
+          <div class="form-group">
+            <label for="modelSelect"><strong style="color: #1721a6;">Model</strong></label>
+            <select id="modelSelect"></select>
+          </div>
+
+          <div class="form-group">
+            <label for="globalInsCategory"><strong style="color: #1721a6;">Global Instructions</strong></label>
+            <select id="globalInsCategory">
+              <option value="custom_ins">Write custom instructions</option>
+              <option value="academic_researcher">Academic Researcher</option>
+              <option value="career_counselor">Career Counselor</option>
+              <option value="copywriter">Copywriter</option>
+              <option value="customer_support">Customer Support Agent</option>
+              <option value="dating_coach">Dating Coach</option>
+              <option value="diy_expert">DIY Expert</option>
+              <option value="empty">Empty</option>
+              <option value="financial_advisor">Financial Advisor</option>
+              <option value="graphic_designer">Graphic Designer</option>
+              <option value="hr_consultant">HR Consultant</option>
+              <option value="journalist">Journalist</option>
+              <option value="language_tutor">Language Tutor</option>
+              <option value="life_coach">Life Coach</option>
+              <option value="life_hacker">Life Hacker</option>
+              <option value="marketing_expert">Marketing Expert</option>
+              <option value="mindfulness_coach">Mindfulness Coach</option>
+              <option value="nutritionist">Nutritionist</option>
+              <option value="personal_trainer">Personal Trainer</option>
+              <option value="product_manager">Product Manager</option>
+              <option value="professional_chef">Professional Chef</option>
+              <option value="professional_salesperson">Professional Salesperson</option>
+              <option value="software_developer">Software Developer</option>
+              <option value="standup_comedian">Standup Comedian</option>
+              <option value="startup_tech_lawyer">Startup Tech Lawyer</option>
+              <option value="tech_writer">Tech Writer</option>
+              <option value="travel_advisor">Travel Advisor</option>
+              <option value="travel_guide">Travel Guide</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <textarea id="globalInsContent" rows="4" readonly></textarea>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="form-group">
+            <label for="creativitySlider"><strong style="color: #1D9D74;">Creativity (Temperature)</strong></label>
+            <div class="slider-group">
+              <input type="range" id="creativitySlider" min="0" max="1" step="0.01" value="0.1">
+              <span id="tempValue">0</span>
+            </div>
+          </div>
+
+          <div id="advancedParams" style="display:none;">
+
+            <div class="form-group">
+              <label for="topP"><strong style="color: #1D9D74;">Top P</strong></label>
+              <div class="slider-group">
+                <input type="range" id="topP" min="0" max="1" step="0.01" value="1">
+                <span id="topPValue">1</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="frequencyPenalty"><strong style="color: #1D9D74;">Frequency Penalty</strong></label>
+              <div class="slider-group">
+                <input type="range" id="frequencyPenalty" min="0" max="2" step="0.1" value="0">
+                <span id="freqValue">0</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="presencePenalty"><strong style="color: #1D9D74;">Presence Penalty</strong></label>
+              <div class="slider-group">
+                <input type="range" id="presencePenalty" min="0" max="2" step="0.1" value="0">
+                <span id="presValue">0</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="form-group">
+            <a href="#" id="resetParams">Reset Parameters</a>
+          </div>
+
+          <a id="toggleAdvBtn" class="toggle-adv">View advanced settings ▼</a>
+
+        </div>
+      </details>
+
+      <div id="infoContainer">
+        <div class="form-group"><strong>Model:</strong> <span class="info-value" id="modelValue"></span></div>
+        <div class="form-group"><strong>Instructions:</strong> <span class="info-value" id="instructionValue"></span></div>
+      </div>
+
+    </div>
+
+    <!-- Row Range -->
+    <div class="section alt">
+
+      <h2>Start from row</h2>
+
+      <div class="tabs"><div class="tab active" data-tab="auto">Auto</div><div class="tab" data-tab="fixed">Fixed</div></div>
+
+      <div class="tab-content">
+
+        <div id="auto" class="active">
+          <label><input type="radio" name="autoMode" value="first" checked onchange="updateRunLabel()"> First <input type="number" id="autoRows" value="3" min="1" onchange="updateRunLabel()"> rows</label><br>
+          <label><input type="radio" name="autoMode" value="all" onchange="updateRunLabel()"> All rows</label>
+        </div>
+
+        <div id="fixed">
+          <input type="number" id="fixedStart" placeholder="from" onchange="updateRunLabel()"> - <input type="number" id="fixedEnd" placeholder="to" onchange="updateRunLabel()">
+        </div>
+
+      </div>
+
+    </div>
+
+    <button id="runBtn" onclick="run()">Run</button>
+
+    <p class="tip">
+      <strong>Tip:</strong> Try 1-3 rows before running many rows! <br>
+      We will not overwrite existing data.<br>
+      Empty rows will be skipped.
+    </p>
+
+    <div id="status"></div>
+
+  </div>
+
+  <script>
+
+    const models = [
+      { label: 'PREVIEW', options: [{ value: 'learnlm-1.5-pro-experimental', text: 'LearnLM 1.5 Pro Experimental' }] },
+      { label: 'GEMINI 1.5', options: [
+        { value: 'gemini-1.5-pro', text: 'Gemini 1.5 Pro' },
+        { value: 'gemini-1.5-flash', text: 'Gemini 1.5 Flash' },
+        { value: 'gemini-1.5-flash-8b', text: 'Gemini 1.5 Flash-8B' }
+      ]},
+      { label: 'GEMINI 2', options: [
+        { value: 'gemini-2.0-flash', text: 'Gemini 2.0 Flash' },
+        { value: 'gemini-2.0-flash-lite', text: 'Gemini 2.0 Flash-Lite' },
+        { value: 'gemini-2.0-flash-thinking-exp-01-21', text: 'Gemini 2.0 Flash Thinking Experimental 01-21' },
+        { value: 'gemini-2.0-flash-exp-image-generation', text: 'Gemini 2.0 Flash (Image Generation) Experimental' }
+      ]},
+      { label: 'GEMINI 2.5 (Experimental)', options: [
+        { value: 'gemini-2.5-pro-exp-03-25', text: 'Gemini 2.5 Pro Experimental 03-25' }
+      ]},
+      { label: 'GEMMA', options: [
+        { value: 'gemma-3-27b-it', text: 'Gemma 3 27B' },
+        { value: 'gemma-2-2b-it', text: 'Gemma 2 2B' },
+        { value: 'gemma-2-9b-it', text: 'Gemma 2 9B' },
+        { value: 'gemma-2-27b-it', text: 'Gemma 2 27B' }
+      ]}
+    ];
+
+    const globalInsMapping = {
+      custom_ins: `Just give the answer. No intro, no explanation, no markdown unless explicitly requested.`,
+      academic_researcher: `Act as an academic researcher who can conduct research, analyze data, and publish findings in academic journals and conferences.`,
+      career_counselor: 'Act as a career counselor who can help you with anything related to your career, from job searching to career planning.',
+      copywriter: 'You are a highly skilled copywriter with a strong background in persuasive writing, conversion optimization, and marketing techniques. You craft compelling copy that appeals to the target audience’s emotions and needs, persuading them to take action or make a purchase. You understand the importance of AIDA (Attention, Interest, Desire, and Action) and other proven copywriting formulas, and seamlessly incorporate them into your writing. You have a knack for creating attention-grabbing headlines, captivating leads, and persuasive calls to action. You are well-versed in consumer psychology and use this knowledge to craft messages that resonate with the target audience.',
+      customer_support: 'Act as a customer support agent who can provide help and support to customers with their inquiries, complaints, and other related issues.',
+      dating_coach: 'Act as a dating coach who can provide advice on online dating, first dates, communication, and breakup advice.',
+      diy_expert: 'Act as a DIY expert who can provide advice and guidance on do-it-yourself projects, such as home improvement, woodworking, and crafting.',
+      empty: '',
+      financial_advisor: 'Act as a financial advisor who can provide advice on budgeting, saving, investing, retirement planning, and other financial issues.',
+      graphic_designer: 'Act as a graphic designer who can create unique visual materials for various media such as websites, advertisements, and branding.',
+      hr_consultant: 'Act as an HR consultant who can provide advice and guidance on human resources issues.',
+      journalist: 'Act as a journalist who can research and report on newsworthy events, conduct interviews, and write news articles and stories.',
+      language_tutor: 'Act as a language tutor who can help you improve your language skills through conversation practice, vocabulary building, and grammar lessons.',
+      life_coach: 'Act as a life coach who can help you set and achieve personal and professional goals.',
+      life_hacker: 'Act as a life hacker who can provide useful tips and tricks to help you optimize your daily routines, save time, and increase productivity.',
+      marketing_expert: 'Act as a marketing expert who can help you develop effective marketing strategies and campaigns, conduct market research, and provide branding and advertising advice.',
+      mindfulness_coach: 'Act as a mindfulness coach who can guide you through meditation and relaxation techniques to help you focus on the present moment and reduce stress and anxiety.',
+      nutritionist: 'Act as a nutritionist who can help you with your dietary needs by providing recipes, advice on healthy eating habits, and dietary recommendations.',
+      personal_trainer: 'Act as a personal trainer who can help you stay fit and improve your health by creating personalized fitness plans and providing workout routines.',
+      product_manager: 'Act as a product manager who can oversee the development and marketing of a product, identify customer needs, and work with engineers and designers to create a product roadmap.',
+      professional_chef: 'Act as a professional chef who can cook and prepare meals in a variety of cuisines and provide advice on cooking techniques and ingredients.',
+      professional_salesperson: 'Act as a professional salesperson who can sell products or services, negotiate deals, and provide advice on sales strategies and techniques.',
+      software_developer: 'Act as a software developer who can help you develop software programs and applications using programming languages and development tools.',
+      standup_comedian: 'Act as a standup comedian who can make you laugh with their jokes and humor.',
+      startup_tech_lawyer: 'Act as a startup tech lawyer who can provide legal advice and guidance to startups and technology businesses on intellectual property, contracts, and regulatory compliance.',
+      tech_writer:'Act as a tech writer who can write technical documentation, manuals, and guides for software, hardware, and technology products.',
+      travel_advisor: 'Act as a travel advisor who can suggest travel destinations, provide recommendations on transportation and accommodations, and help you plan your itinerary based on your preferences and budget.',
+      travel_guide: 'Act as a travel guide who can help you explore various travel destinations and learn about their tourist attractions, culture, and customs.'
+    };
+
+    // mảng lưu thông tin cột headers sau khi load
+    let headerCols = [];
+
+    function init() {
+
+      const variantsCheckbox = document.getElementById('variants');
+
+      variantsCheckbox.addEventListener('change', populateOutputOptions);
+
+      // Load header columns từ Google Sheets và populate selects
+      document.getElementById('headerRow').addEventListener('change', loadHeaders);
+
+      // Load header columns và populate dropdowns
+      loadHeaders();
+
+      // Thiết lập model dropdown và sync với spreadsheet settings
+      const menu = document.getElementById('modelMenu');
+      const trigger = document.getElementById('modelTrigger');
+      const modelSelect = document.getElementById('modelSelect');
+
+      // Build header dropdown
+      menu.innerHTML = '';
+      models.forEach(group => {
+        const lbl = document.createElement('div');
+        lbl.className = 'optgroup-label';
+        lbl.textContent = group.label;
+        menu.appendChild(lbl);
+        group.options.forEach(opt => {
+          const it = document.createElement('div');
+          it.className = 'option-item';
+          it.textContent = opt.text;
+          it.dataset.value = opt.value;
+          it.onclick = () => selectModel(it);
+          menu.appendChild(it);
+        });
+      });
+      trigger.onclick = () => menu.classList.toggle('show');
+
+      // Build select dropdown
+      modelSelect.innerHTML = '';
+      models.forEach(group => {
+        const og = document.createElement('optgroup');
+        og.label = group.label;
+        group.options.forEach(opt => {
+          const o = document.createElement('option');
+          o.value = opt.value;
+          o.textContent = opt.text;
+          og.appendChild(o);
+        });
+        modelSelect.appendChild(og);
+      });
+      // Khi thay đổi từ spreadsheet settings, đồng bộ lên header
+      modelSelect.onchange = () => {
+        const val = modelSelect.value;
+        const item = [...menu.querySelectorAll('.option-item')]
+          .find(i => i.dataset.value === val);
+        if (item) selectModel(item);
+      };
+      selectModel(menu.querySelector('.option-item'));
+
+      // Hiển thị / ẩn thông tin model & instructions khi toggle advanced
+      const detailEl = document.getElementById('spreadsheetSettingsDetail');
+      const infoEl = document.getElementById('infoContainer');
+      const modelValue = document.getElementById('modelValue');
+
+      // Toggle show/hide infoContainer khi mở hoặc đóng details
+      detailEl.addEventListener('toggle', () => {
+        if (detailEl.open) {
+          infoEl.style.display = 'none';
+        } else {
+          infoEl.style.display = 'flex';
+        }
+      });
+
+      modelValue.addEventListener('click', () => { detailEl.open = true; modelSelect.focus(); });
+      modelSelect.addEventListener('change', updateInfoModel);
+
+      // Global Instructions
+      const cat = document.getElementById('globalInsCategory');
+      const cont = document.getElementById('globalInsContent');
+      const instructionValue = document.getElementById('instructionValue');
+
+      autoResizeTextarea(cont);
+      cont.addEventListener('input', () => autoResizeTextarea(cont));
+      cat.addEventListener('change', () => {
+        const key = cat.value;
+        const txt = globalInsMapping[key] || '';
+        cont.value = txt;
+        cont.readOnly = (key !== 'custom');
+        instructionValue.textContent = txt || '--';
+        autoResizeTextarea(cont);
+      });
+
+      instructionValue.addEventListener('click', () => {
+        detailEl.open = true;
+        cat.focus();
+      });
+
+      // Auto-resize textareas
+      const ta = document.getElementById('promptEditor');
+      ta.innerHTML = '';
+      ta.addEventListener('input', () => {
+        highlightVariables(ta);
+        updateRunLabel();
+      });
+
+      const ci = document.getElementById('customIns');
+      ci.rows = ci.placeholder.split('\n').length || 1;
+      autoResizeTextarea(ci);
+      ci.addEventListener('input', () => autoResizeTextarea(ci));
+
+      // Sliders
+      document.querySelectorAll('#spreadsheetSettingsDetail .slider-group input[type=range]').forEach(slider => {
+        const span = document.getElementById(
+          slider.id === 'creativitySlider' ? 'tempValue' :
+          slider.id === 'topP' ? 'topPValue' :
+          slider.id === 'frequencyPenalty' ? 'freqValue' : 'presValue'
+        );
+        const render = () => {
+          const pct = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+          span.textContent = slider.value;
+          slider.style.background =
+            `linear-gradient(to right,
+              var(--slider-color) ${pct}%,
+              var(--col-border) ${pct}%)`;
+          const rad = getComputedStyle(document.documentElement)
+                        .getPropertyValue('--rad').trim();
+          slider.style.borderRadius = rad;
+        };
+        slider.addEventListener('input', render);
+        render();
+      });
+
+      // Reset parameters
+      document.getElementById('resetParams').addEventListener('click', e => {
+        e.preventDefault();
+        const defaults = {creativitySlider:'0', topP:'1', frequencyPenalty:'0', presencePenalty:'0'};
+        Object.entries(defaults).forEach(([id, v]) => {
+          const s = document.getElementById(id);
+          s.value = v;
+          s.dispatchEvent(new Event('input')); });
+      });
+
+      // Tabs
+      document.querySelectorAll('.tab').forEach(tab => tab.onclick = () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+        document.querySelectorAll('.tab-content > div').forEach(c => c.classList.toggle('active', c.id === tab.dataset.tab));
+        updateRunLabel();
+      });
+
+      // Advanced Button Settings
+      const toggleBtn = document.getElementById('toggleAdvBtn');
+      const adv = document.getElementById('advancedParams');
+      toggleBtn.addEventListener('click', e => {
+        e.preventDefault();
+        const open = adv.style.display === 'block';
+        adv.style.display = open ? 'none' : 'block';
+        toggleBtn.textContent = open ? 'View Advanced Settings ▼' : 'Hide Advanced Settings ▲';
+      });
+
+      // Khởi tạo trạng thái ban đầu
+      cat.dispatchEvent(new Event('change'));
+      updateInfoModel();
+      updateRunLabel();
+    }
+
+    function autoResizeTextarea(el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }
+
+    function selectModel(item) {
+      document.querySelectorAll('.option-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+      const trigger = document.getElementById('modelTrigger');
+      trigger.textContent = item.textContent;
+      trigger.dataset.value = item.dataset.value;
+      document.getElementById('modelMenu').classList.remove('show');
+      document.getElementById('modelSelect').value = item.dataset.value;
+      updateInfoModel();
+    }
+
+    function updateInfoModel() {
+      const sel = document.getElementById('modelSelect');
+      const text = sel.options[sel.selectedIndex]?.text || '--';
+      document.getElementById('modelValue').textContent = text;
+    }
+
+    function loadHeaders() {
+      const headerIndex = Number(document.getElementById('headerRow').value);
+      google.script.run.withSuccessHandler(cols => {
+        console.log('Loaded headerCols:', cols);
+        headerCols = cols; // cols là [{col:'A', name:'...'}, {col:'B',name:''}, …]
+        populateInputOptions();
+        populateOutputOptions();
+      }).getHeaderColumns(headerIndex);
+    }
+
+    function populateInputOptions() {
+      const sel = document.getElementById('inputColumns');
+      sel.innerHTML = '';
+
+      // Placeholder option
+      const ph = document.createElement('option');
+      ph.value = '';
+      ph.textContent = 'Choose variable';
+      ph.disabled = true;
+      ph.selected = true;
+      sel.appendChild(ph);
+
+      // Tạo option cho từng cột
+      headerCols.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.col;
+        opt.textContent = c.name?.trim() ? `${c.col}: ${c.name}` : c.col;
+        sel.appendChild(opt);
+      });
+
+      // Khi user chọn biến, chèn token và reset dropdown
+      sel.onchange = () => {
+        const val = sel.value;
+        insertVariable(val);
+        highlightVariables(document.getElementById('promptEditor'));
+      };
+    }
+
+    function populateOutputOptions() {
+      // lấy trạng thái checkbox
+      const variants = document.getElementById('variants').checked;
+      // lấy thẻ <select> để đổ option vào
+      const sel = document.getElementById('outputColumn');
+      // lấy label kèm select để đổi chữ column(s)
+      const lbl = document.getElementById('outputLabel');
+      // xóa hết các options cũ
+      sel.innerHTML = '';
+
+      // Tạo option placeholder chung (disabled và selected)
+      const ph = document.createElement('option');
+      ph.value = '';
+      ph.disabled = true;
+      ph.selected = true;
+      ph.textContent = variants ? 'Choose columns' : 'Choose a column';
+      sel.appendChild(ph);
+
+      lbl.textContent = variants ? 'Put results in columns' : 'Put results in column';
+
+      if (!variants) {
+        // chưa bật 2 variants (chọn đơn cột)
+        sel.multiple = false; // đảm bảo single-select
+
+        // duyệt qua tất cả cột trong headerCols
+        headerCols.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.col;
+          opt.textContent = c.name?.trim()
+                            ? `${c.col}: ${c.name}`
+                            : c.col;
+          sel.appendChild(opt);
+        });
+      } else {
+        // bật 2 variants (chọn cặp cột liên tiếp kề nhau)
+        sel.multiple = false; // vẫn giữ single-select
+        for (let i = 0; i < headerCols.length - 1; i++) {
+          const a = headerCols[i], b = headerCols[i + 1];
+          const opt = document.createElement('option');
+          opt.value = `${a.col},${b.col}`;
+          const textA = a.name?.trim() ? `${a.col}: ${a.name}` : a.col;
+          const textB = b.name?.trim() ? `${b.col}: ${b.name}` : b.col;
+          opt.textContent = `${textA}, ${textB}`;
+          sel.appendChild(opt);
+        }
+      }
+      console.log('headerCols:', headerCols);
+    }
+
+    function insertVariable(val) {
+      const editor = document.getElementById('promptEditor');
+      let sel = window.getSelection();
+      let range;
+      // Nếu con trỏ đang ở trong editor thì dùng vị trí đó, ngược lại chèn ở cuối
+      if (sel.rangeCount && editor.contains(sel.anchorNode)) {
+        range = sel.getRangeAt(0);
+      } else {
+        editor.focus();
+        range = document.createRange();
+        range.selectNodeContents(editor);
+        range.collapse(false); // đặt con trỏ cuối nội dung
+      }
+
+      // Tạo span chứa token
+      const span = document.createElement('span');
+      span.className = 'variable';
+      span.textContent = `{{${val}}}`;
+
+      // Chèn và đặt lại con trỏ
+      range.deleteContents();
+      range.insertNode(span);
+      // Di chuyển con trỏ ngay sau span mới
+      range.setStartAfter(span);
+      sel.removeAllRanges(); sel.addRange(range);
+    }
+
+    function highlightVariables(editor) {
+      // Lấy toàn bộ text, escape HTML
+      let text = editor.innerText
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      // Bọc token
+      const html = text.replace(/\{\{(.+?)\}\}/g,
+        (_, v) => `<span class="variable">{{${v}}}</span>`
+      );
+
+      // Cập nhật và đặt con trỏ cuối
+      editor.innerHTML = html;
+      const range = document.createRange();
+      range.selectNodeContents(editor);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+    }
+
+    function updateRunLabel() {
+      let label;
+      if (document.getElementById('auto').classList.contains('active')) {
+        const mode = document.querySelector('input[name="autoMode"]:checked').value;
+        label = mode === 'all'
+          ? 'Run all rows'
+          : `Run ${document.getElementById('autoRows').value} rows`;
+      } else {
+        const start = document.getElementById('fixedStart').value;
+        const end = document.getElementById('fixedEnd').value;
+        label = (start && end) ? `Run rows ${start}-${end}` : 'Run rows';
+      }
+      document.getElementById('runBtn').textContent = label;
+    }
+
+    function run() {
+      document.getElementById('status').textContent = 'Running...';
+
+      // 1. Đọc prompt thô và trích các biến {{…}}
+      const rawPrompt = document.getElementById('promptEditor').innerText;
+      const promptVars = Array.from(
+        rawPrompt.matchAll(/\{\{\s*(.+?)\s*\}\}/g),
+        m => m[1].trim()
+      );
+
+      // 2. Đọc các biến user đã chọn từ dropdown
+      const selectedVars = Array.from(
+        document.getElementById('inputColumns').selectedOptions
+      ).map(o => o.value).filter(v => v);
+
+      // 3. Kết hợp và loại trùng
+      const inputColumns = Array.from(new Set([
+        ...selectedVars,
+        ...promptVars
+      ]));
+
+      // 4. Đọc các control khác
+      const cfg = {
+        model:           document.getElementById('modelTrigger').dataset.value,
+        headerRow:       Number(document.getElementById('headerRow').value),
+        inputColumns,    // đã unique
+        outputColumn:    document.getElementById('outputColumn').value,
+        variants:        document.getElementById('variants').checked,
+        mode:            document.querySelector('.tab.active').dataset.tab,
+        autoMode:        document.querySelector('input[name="autoMode"]:checked')?.value,
+        autoRows:        Number(document.getElementById('autoRows').value),
+        fixedStart:      Number(document.getElementById('fixedStart').value) || null,
+        fixedEnd:        Number(document.getElementById('fixedEnd').value)   || null,
+        prompt:          rawPrompt,
+        temperature:      parseFloat(document.getElementById('creativitySlider').value),
+        topP:             parseFloat(document.getElementById('topP').value),
+        frequencyPenalty: parseFloat(document.getElementById('frequencyPenalty').value),
+        presencePenalty:  parseFloat(document.getElementById('presencePenalty').value),
+        spreadsheetInstructionCategory: document.getElementById('globalInsCategory').value,
+        spreadsheetInstructions:        document.getElementById('globalInsContent').value,
+        customInstructions:             document.getElementById('customIns').value
+      };
+
+      google.script.run
+        .withSuccessHandler(() => document.getElementById('status').textContent = 'Done!')
+        .withFailureHandler(err => document.getElementById('status').textContent = 'Error: ' + err.message)
+        .runSummarize(cfg);
+    }
+
+    function goBack() {
+      if (window.google?.script?.host) {
+        google.script.host.close();
+      } else if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = '/';
+      }
+    }
+  </script>
+</body>
+</html>
