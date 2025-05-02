@@ -12,7 +12,7 @@ Leveraging advanced AI models, the add-on provides high-quality, context-aware t
 #### **Intuitive Layout**
 This dedicated sidebar allows users to set a customized prompt without leaving their document.
 
-![SideBar](https://raw.githubusercontent.com/PhuocPhat1005/AI_Powered_Calculation_Plugin_for_Excel_Processing_Applications/refs/heads/main/images/layout.gif)
+![SideBar](https://raw.githubusercontent.com/PhuocPhat1005/AI_Powered_Calculation_Plugin_for_Excel_Processing_Applications/refs/heads/main/layout.gif)
 
 #### **Main Features**
 In this AI-Powered Calculation Sidebar, there are a lot of interesting features shown below:
